@@ -67,7 +67,7 @@ fn main() {
         .expect("Could not initialize logging");
     }
     log::debug!("Using path: {:?}", args.path);
-    
+
     let cargo_toml_path = match find_cargo_toml(&args.path) {
         Some(path) => path,
         None => {
@@ -98,12 +98,12 @@ fn main() {
         let contents = crate_.create_mermaid();
         if let Some(filename) = args.output {
             let mut outputfile = std::fs::OpenOptions::new()
-            .truncate(true)
-            .create(true)
-            .write(true)
-            .read(false)
-            .open(filename)
-            .unwrap();
+                .truncate(true)
+                .create(true)
+                .write(true)
+                .read(false)
+                .open(filename)
+                .unwrap();
             write!(&mut outputfile, "{contents}").unwrap();
         } else {
             let mut handle = std::io::stdout().lock();
