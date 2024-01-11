@@ -1,0 +1,23 @@
+name: thigpen rust
+
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+        branches:
+            -main
+
+jobs:
+    check:
+        name: Check rust
+        runs-on: rust:latest
+        steps:
+            - name: Check out code
+              uses: actions/checkout@v2
+            - name: Check formattiong
+              run: cargo fmt --check
+            - name: Build thigpen
+              run: cargo build --release --all-features
+            - name: Run clippy
+              run: cargo +nightly clippy -- -Dwarnings
