@@ -13,5 +13,5 @@ cargo_toml = "0.17.2"
 clap = { version = "4.4.12", features = ["derive", "string"] }
 log = "0.4.20"
 proc-macro2 = { version = "1.0.75" }
-simplelog = { version = "0.12.1", no-default-features = true }
+simplelog = { version = "0.12.1", default-features = true }
 syn = { version = "2.0.47", features = ["full"] }
