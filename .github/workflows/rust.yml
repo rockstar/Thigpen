@@ -11,13 +11,28 @@ on:
 jobs:
     check:
         name: Check rust
-        runs-on: rust:latest
+        runs-on: ubuntu-latest
         steps:
+
+            - name: Install rust nightly
+              uses: actions-rs/toolchain@v1
+              with:
+                toolchain: nightly
+                components: clippy
+                override: true
+            - name: Install rust stable
+              uses: actions-rs/toolchain@v1
+              with:
+                toolchain: stable
+                components: fmt
+                override: true
             - name: Check out code
               uses: actions/checkout@v2
             - name: Check formattiong
               run: cargo fmt --check
             - name: Build thigpen
               run: cargo build --release --all-features
+              env:
+                RUSTFLAGS: -Dwarnings
             - name: Run clippy
               run: cargo +nightly clippy -- -Dwarnings
