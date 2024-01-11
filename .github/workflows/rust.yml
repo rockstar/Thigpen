@@ -24,7 +24,7 @@ jobs:
               uses: actions-rs/toolchain@v1
               with:
                 toolchain: stable
-                components: fmt
+                components: rustfmt
                 override: true
             - name: Check out code
               uses: actions/checkout@v2
