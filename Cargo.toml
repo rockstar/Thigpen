@@ -10,6 +10,7 @@ repository = "https://github.com/rockstar/thigpen"
 readme = "README.md"
 
 keywords = []
+exclude = [".gitignore", ".github/*"]
 
 [[bin]]
 name = "thigpen"
