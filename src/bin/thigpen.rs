@@ -34,7 +34,7 @@ struct Args {
     #[arg(long, default_value_t = OutputType::Mermaid)]
     output_type: OutputType,
     #[arg(short)]
-    output: String,
+    output: Option<String>,
 }
 
 fn find_cargo_toml(path: &Path) -> Option<PathBuf> {
@@ -96,14 +96,19 @@ fn main() {
         let crate_ = Lib::from_path(product.name.as_ref().unwrap(), path.as_path());
 
         let contents = crate_.create_mermaid();
-        let mut outputfile = std::fs::OpenOptions::new()
+        if let Some(filename) = args.output {
+            let mut outputfile = std::fs::OpenOptions::new()
             .truncate(true)
             .create(true)
             .write(true)
             .read(false)
-            .open("thigpen.erd")
+            .open(filename)
             .unwrap();
-        write!(&mut outputfile, "{contents}").unwrap();
+            write!(&mut outputfile, "{contents}").unwrap();
+        } else {
+            let mut handle = std::io::stdout().lock();
+            write!(&mut handle, "{contents}").unwrap();
+        };
     } else {
         eprintln!("thigpen does not (yet) support non-lib crates");
         std::process::exit(1);
