@@ -2,8 +2,43 @@ use std::fmt::Write;
 use std::path::Path;
 
 #[derive(Debug)]
+enum PublicIdentifierType {
+    Use,
+    Const,
+    Enum,
+    ExternCrate,
+    Fn,
+    Mod,
+    Static,
+    Struct,
+    Trait,
+    TraitAlias,
+    Type,
+    Union,
+}
+
+impl std::fmt::Display for PublicIdentifierType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self{
+            PublicIdentifierType::Use => write!(f, "use"),
+            PublicIdentifierType::Const => write!(f, "const"),
+            PublicIdentifierType::Enum => write!(f, "enum"),
+            PublicIdentifierType::ExternCrate => write!(f, "extern crate"),
+            PublicIdentifierType::Fn => write!(f, "fn"),
+            PublicIdentifierType::Mod => write!(f, "mod"),
+            PublicIdentifierType::Static => write!(f, "static"),
+            PublicIdentifierType::Struct => write!(f, "struct"),
+            PublicIdentifierType::Trait => write!(f, "trait"),
+            PublicIdentifierType::TraitAlias => write!(f, "trait alias"),
+            PublicIdentifierType::Type => write!(f, "type"),
+            PublicIdentifierType::Union => write!(f, "union"),
+        }
+    }
+}
+
+#[derive(Debug)]
 struct PublicIdentifier {
-    r#type: String,
+    r#type: PublicIdentifierType,
     name: String,
 }
 
@@ -13,15 +48,15 @@ impl PublicIdentifier {
             syn::UseTree::Path(usepath) => PublicIdentifier::from_use(&usepath.tree),
             syn::UseTree::Name(name) => vec![Self {
                 name: name.ident.to_string(),
-                r#type: "use".into(),
+                r#type: PublicIdentifierType::Use,
             }],
             syn::UseTree::Rename(rename) => vec![Self {
                 name: rename.rename.to_string(),
-                r#type: "use".into(),
+                r#type: PublicIdentifierType::Use,
             }],
             syn::UseTree::Glob(_) => vec![Self {
                 name: "*".into(),
-                r#type: "use".into(),
+                r#type: PublicIdentifierType::Use,
             }],
             syn::UseTree::Group(group) => group.items.iter().flat_map(PublicIdentifier::from_use).collect(),
         }
@@ -35,7 +70,7 @@ impl PublicIdentifier {
                     if let syn::Visibility::Public(_) = item.vis {
                         Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
-                            r#type: "const".into(),
+                            r#type: PublicIdentifierType::Const,
                         }])
                     } else {
                         None
@@ -45,7 +80,7 @@ impl PublicIdentifier {
                     if let syn::Visibility::Public(_) = item.vis {
                         Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
-                            r#type: "enum".into(),
+                            r#type: PublicIdentifierType::Enum,
                         }])
                     } else {
                         None
@@ -55,7 +90,7 @@ impl PublicIdentifier {
                     if let syn::Visibility::Public(_) = item.vis {
                         Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
-                            r#type: "extern crate".into(),
+                            r#type: PublicIdentifierType::ExternCrate,
                         }])
                     } else {
                         None
@@ -65,7 +100,7 @@ impl PublicIdentifier {
                     if let syn::Visibility::Public(_) = item.vis {
                         Some(vec![PublicIdentifier {
                             name: item.sig.ident.to_string(),
-                            r#type: "fn".into(),
+                            r#type: PublicIdentifierType::Fn,
                         }])
                     } else {
                         None
@@ -78,7 +113,7 @@ impl PublicIdentifier {
                     if let syn::Visibility::Public(_) = item.vis {
                         Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
-                            r#type: "mod".into(),
+                            r#type: PublicIdentifierType::Mod,
                         }])
                     } else {
                         None
@@ -88,7 +123,7 @@ impl PublicIdentifier {
                     if let syn::Visibility::Public(_) = item.vis {
                         Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
-                            r#type: "static".into(),
+                            r#type: PublicIdentifierType::Static,
                         }])
                     } else {
                         None
@@ -98,7 +133,7 @@ impl PublicIdentifier {
                     if let syn::Visibility::Public(_) = item.vis {
                         Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
-                            r#type: "struct".into(),
+                            r#type: PublicIdentifierType::Struct,
                         }])
                     } else {
                         None
@@ -108,7 +143,7 @@ impl PublicIdentifier {
                     if let syn::Visibility::Public(_) = item.vis {
                         Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
-                            r#type: "trait".into(),
+                            r#type: PublicIdentifierType::Trait,
                         }])
                     } else {
                         None
@@ -118,7 +153,7 @@ impl PublicIdentifier {
                     if let syn::Visibility::Public(_) = item.vis {
                         Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
-                            r#type: "trait alias".into(),
+                            r#type: PublicIdentifierType::TraitAlias,
                         }])
                     } else {
                         None
@@ -128,7 +163,7 @@ impl PublicIdentifier {
                     if let syn::Visibility::Public(_) = item.vis {
                         Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
-                            r#type: "type".into(),
+                            r#type: PublicIdentifierType::Type,
                         }])
                     } else {
                         None
@@ -138,7 +173,7 @@ impl PublicIdentifier {
                     if let syn::Visibility::Public(_) = item.vis {
                         Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
-                            r#type: "union".into(),
+                            r#type: PublicIdentifierType::Union,
                         }])
                     } else {
                         None
