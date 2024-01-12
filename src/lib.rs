@@ -19,7 +19,7 @@ enum PublicIdentifierType {
 
 impl std::fmt::Display for PublicIdentifierType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self{
+        match self {
             PublicIdentifierType::Use => write!(f, "use"),
             PublicIdentifierType::Const => write!(f, "const"),
             PublicIdentifierType::Enum => write!(f, "enum"),
@@ -58,122 +58,126 @@ impl PublicIdentifier {
                 name: "*".into(),
                 r#type: PublicIdentifierType::Use,
             }],
-            syn::UseTree::Group(group) => group.items.iter().flat_map(PublicIdentifier::from_use).collect(),
+            syn::UseTree::Group(group) => group
+                .items
+                .iter()
+                .flat_map(PublicIdentifier::from_use)
+                .collect(),
         }
     }
 
-    fn find_in_items(items: &[syn::Item]) -> Vec<Self>  {
+    fn find_in_items(items: &[syn::Item]) -> Vec<Self> {
         items
             .iter()
             .filter_map(|item| match item {
-                syn::Item::Const(item) => {
-                    match &item.vis {
-                        syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => Some(vec![PublicIdentifier {
+                syn::Item::Const(item) => match &item.vis {
+                    syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => {
+                        Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
                             r#type: PublicIdentifierType::Const,
-                        }]),
-                        syn::Visibility::Inherited => None,
+                        }])
                     }
-                }
-                syn::Item::Enum(item) => {
-                    match &item.vis {
-                        syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => Some(vec![PublicIdentifier {
+                    syn::Visibility::Inherited => None,
+                },
+                syn::Item::Enum(item) => match &item.vis {
+                    syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => {
+                        Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
                             r#type: PublicIdentifierType::Enum,
-                        }]),
-                        syn::Visibility::Inherited => None,
+                        }])
                     }
-                }
-                syn::Item::ExternCrate(item) => {
-                    match &item.vis {
-                        syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => Some(vec![PublicIdentifier {
+                    syn::Visibility::Inherited => None,
+                },
+                syn::Item::ExternCrate(item) => match &item.vis {
+                    syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => {
+                        Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
                             r#type: PublicIdentifierType::ExternCrate,
-                        }]),
-                        syn::Visibility::Inherited => None,
+                        }])
                     }
-                }
-                syn::Item::Fn(item) => {
-                    match &item.vis {
-                        syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => Some(vec![PublicIdentifier {
+                    syn::Visibility::Inherited => None,
+                },
+                syn::Item::Fn(item) => match &item.vis {
+                    syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => {
+                        Some(vec![PublicIdentifier {
                             name: item.sig.ident.to_string(),
                             r#type: PublicIdentifierType::Fn,
-                        }]),
-                        syn::Visibility::Inherited => None,
+                        }])
                     }
-                }
+                    syn::Visibility::Inherited => None,
+                },
                 syn::Item::ForeignMod(_) => None,
                 syn::Item::Impl(_) => None,
                 syn::Item::Macro(_) => None,
-                syn::Item::Mod(item) => {
-                    match &item.vis {
-                        syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => Some(vec![PublicIdentifier {
+                syn::Item::Mod(item) => match &item.vis {
+                    syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => {
+                        Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
                             r#type: PublicIdentifierType::Mod,
-                        }]),
-                        syn::Visibility::Inherited => None,
+                        }])
                     }
-                }
-                syn::Item::Static(item) => {
-                    match &item.vis {
-                        syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => Some(vec![PublicIdentifier {
+                    syn::Visibility::Inherited => None,
+                },
+                syn::Item::Static(item) => match &item.vis {
+                    syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => {
+                        Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
                             r#type: PublicIdentifierType::Static,
-                        }]),
-                        syn::Visibility::Inherited => None,
+                        }])
                     }
-                }
-                syn::Item::Struct(item) => {
-                    match &item.vis {
-                        syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => Some(vec![PublicIdentifier {
+                    syn::Visibility::Inherited => None,
+                },
+                syn::Item::Struct(item) => match &item.vis {
+                    syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => {
+                        Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
                             r#type: PublicIdentifierType::Struct,
-                        }]),
-                        syn::Visibility::Inherited => None,
+                        }])
                     }
-                }
-                syn::Item::Trait(item) => {
-                    match &item.vis {
-                        syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => Some(vec![PublicIdentifier {
+                    syn::Visibility::Inherited => None,
+                },
+                syn::Item::Trait(item) => match &item.vis {
+                    syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => {
+                        Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
                             r#type: PublicIdentifierType::Trait,
-                        }]),
-                        syn::Visibility::Inherited => None,
+                        }])
                     }
-                }
-                syn::Item::TraitAlias(item) => {
-                    match &item.vis {
-                        syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => Some(vec![PublicIdentifier {
+                    syn::Visibility::Inherited => None,
+                },
+                syn::Item::TraitAlias(item) => match &item.vis {
+                    syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => {
+                        Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
                             r#type: PublicIdentifierType::TraitAlias,
-                        }]),
-                        syn::Visibility::Inherited => None,
+                        }])
                     }
-                }
-                syn::Item::Type(item) => {
-                    match &item.vis {
-                        syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => Some(vec![PublicIdentifier {
+                    syn::Visibility::Inherited => None,
+                },
+                syn::Item::Type(item) => match &item.vis {
+                    syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => {
+                        Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
                             r#type: PublicIdentifierType::Type,
-                        }]),
-                        syn::Visibility::Inherited => None,
+                        }])
                     }
-                }
-                syn::Item::Union(item) => {
-                    match &item.vis {
-                        syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => Some(vec![PublicIdentifier {
+                    syn::Visibility::Inherited => None,
+                },
+                syn::Item::Union(item) => match &item.vis {
+                    syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => {
+                        Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
                             r#type: PublicIdentifierType::Union,
-                        }]),
-                        syn::Visibility::Inherited => None,
+                        }])
                     }
-                }
-                syn::Item::Use(item) => {
-                    match &item.vis {
-                        syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => Some(PublicIdentifier::from_use(&item.tree)),
-                        syn::Visibility::Inherited => None,
+                    syn::Visibility::Inherited => None,
+                },
+                syn::Item::Use(item) => match &item.vis {
+                    syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => {
+                        Some(PublicIdentifier::from_use(&item.tree))
                     }
-                }
+                    syn::Visibility::Inherited => None,
+                },
                 syn::Item::Verbatim(_) => None,
                 _ => None,
             })
@@ -350,7 +354,8 @@ impl Module {
                     })
                     .collect();
 
-                let interface: Vec<PublicIdentifier> = PublicIdentifier::find_in_items(&parsed_file.items);
+                let interface: Vec<PublicIdentifier> =
+                    PublicIdentifier::find_in_items(&parsed_file.items);
 
                 (modules, interface)
             })
