@@ -67,123 +67,111 @@ impl PublicIdentifier {
             .iter()
             .filter_map(|item| match item {
                 syn::Item::Const(item) => {
-                    if let syn::Visibility::Public(_) = item.vis {
-                        Some(vec![PublicIdentifier {
+                    match &item.vis {
+                        syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
                             r#type: PublicIdentifierType::Const,
-                        }])
-                    } else {
-                        None
+                        }]),
+                        syn::Visibility::Inherited => None,
                     }
                 }
                 syn::Item::Enum(item) => {
-                    if let syn::Visibility::Public(_) = item.vis {
-                        Some(vec![PublicIdentifier {
+                    match &item.vis {
+                        syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
                             r#type: PublicIdentifierType::Enum,
-                        }])
-                    } else {
-                        None
+                        }]),
+                        syn::Visibility::Inherited => None,
                     }
                 }
                 syn::Item::ExternCrate(item) => {
-                    if let syn::Visibility::Public(_) = item.vis {
-                        Some(vec![PublicIdentifier {
+                    match &item.vis {
+                        syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
                             r#type: PublicIdentifierType::ExternCrate,
-                        }])
-                    } else {
-                        None
+                        }]),
+                        syn::Visibility::Inherited => None,
                     }
                 }
                 syn::Item::Fn(item) => {
-                    if let syn::Visibility::Public(_) = item.vis {
-                        Some(vec![PublicIdentifier {
+                    match &item.vis {
+                        syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => Some(vec![PublicIdentifier {
                             name: item.sig.ident.to_string(),
                             r#type: PublicIdentifierType::Fn,
-                        }])
-                    } else {
-                        None
+                        }]),
+                        syn::Visibility::Inherited => None,
                     }
                 }
                 syn::Item::ForeignMod(_) => None,
                 syn::Item::Impl(_) => None,
                 syn::Item::Macro(_) => None,
                 syn::Item::Mod(item) => {
-                    if let syn::Visibility::Public(_) = item.vis {
-                        Some(vec![PublicIdentifier {
+                    match &item.vis {
+                        syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
                             r#type: PublicIdentifierType::Mod,
-                        }])
-                    } else {
-                        None
+                        }]),
+                        syn::Visibility::Inherited => None,
                     }
                 }
                 syn::Item::Static(item) => {
-                    if let syn::Visibility::Public(_) = item.vis {
-                        Some(vec![PublicIdentifier {
+                    match &item.vis {
+                        syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
                             r#type: PublicIdentifierType::Static,
-                        }])
-                    } else {
-                        None
+                        }]),
+                        syn::Visibility::Inherited => None,
                     }
                 }
                 syn::Item::Struct(item) => {
-                    if let syn::Visibility::Public(_) = item.vis {
-                        Some(vec![PublicIdentifier {
+                    match &item.vis {
+                        syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
                             r#type: PublicIdentifierType::Struct,
-                        }])
-                    } else {
-                        None
+                        }]),
+                        syn::Visibility::Inherited => None,
                     }
                 }
                 syn::Item::Trait(item) => {
-                    if let syn::Visibility::Public(_) = item.vis {
-                        Some(vec![PublicIdentifier {
+                    match &item.vis {
+                        syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
                             r#type: PublicIdentifierType::Trait,
-                        }])
-                    } else {
-                        None
+                        }]),
+                        syn::Visibility::Inherited => None,
                     }
                 }
                 syn::Item::TraitAlias(item) => {
-                    if let syn::Visibility::Public(_) = item.vis {
-                        Some(vec![PublicIdentifier {
+                    match &item.vis {
+                        syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
                             r#type: PublicIdentifierType::TraitAlias,
-                        }])
-                    } else {
-                        None
+                        }]),
+                        syn::Visibility::Inherited => None,
                     }
                 }
                 syn::Item::Type(item) => {
-                    if let syn::Visibility::Public(_) = item.vis {
-                        Some(vec![PublicIdentifier {
+                    match &item.vis {
+                        syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
                             r#type: PublicIdentifierType::Type,
-                        }])
-                    } else {
-                        None
+                        }]),
+                        syn::Visibility::Inherited => None,
                     }
                 }
                 syn::Item::Union(item) => {
-                    if let syn::Visibility::Public(_) = item.vis {
-                        Some(vec![PublicIdentifier {
+                    match &item.vis {
+                        syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => Some(vec![PublicIdentifier {
                             name: item.ident.to_string(),
                             r#type: PublicIdentifierType::Union,
-                        }])
-                    } else {
-                        None
+                        }]),
+                        syn::Visibility::Inherited => None,
                     }
                 }
                 syn::Item::Use(item) => {
-                    if let syn::Visibility::Public(_) = item.vis {
-                        Some(PublicIdentifier::from_use(&item.tree))
-                    } else {
-                        None
+                    match &item.vis {
+                        syn::Visibility::Public(_) | syn::Visibility::Restricted(_) => Some(PublicIdentifier::from_use(&item.tree)),
+                        syn::Visibility::Inherited => None,
                     }
                 }
                 syn::Item::Verbatim(_) => None,
