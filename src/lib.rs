@@ -7,27 +7,155 @@ struct PublicIdentifier {
     name: String,
 }
 
-impl From<syn::UseTree> for PublicIdentifier {
-    fn from(value: syn::UseTree) -> Self {
+impl PublicIdentifier {
+    fn from_use(value: &syn::UseTree) -> Vec<Self> {
         match value {
-            syn::UseTree::Path(usepath) => (*usepath.tree).into(),
-            syn::UseTree::Name(name) => Self {
+            syn::UseTree::Path(usepath) => PublicIdentifier::from_use(&usepath.tree),
+            syn::UseTree::Name(name) => vec![Self {
                 name: name.ident.to_string(),
                 r#type: "use".into(),
-            },
-            syn::UseTree::Rename(rename) => Self {
+            }],
+            syn::UseTree::Rename(rename) => vec![Self {
                 name: rename.rename.to_string(),
                 r#type: "use".into(),
-            },
-            syn::UseTree::Glob(_) => Self {
+            }],
+            syn::UseTree::Glob(_) => vec![Self {
                 name: "*".into(),
                 r#type: "use".into(),
-            },
-            syn::UseTree::Group(_group) => Self {
-                name: "group".into(),
-                r#type: "use".into(),
-            }, // TODO
+            }],
+            syn::UseTree::Group(group) => group.items.iter().flat_map(PublicIdentifier::from_use).collect(),
         }
+    }
+
+    fn find_in_items(items: &[syn::Item]) -> Vec<Self>  {
+        items
+            .iter()
+            .filter_map(|item| match item {
+                syn::Item::Const(item) => {
+                    if let syn::Visibility::Public(_) = item.vis {
+                        Some(vec![PublicIdentifier {
+                            name: item.ident.to_string(),
+                            r#type: "const".into(),
+                        }])
+                    } else {
+                        None
+                    }
+                }
+                syn::Item::Enum(item) => {
+                    if let syn::Visibility::Public(_) = item.vis {
+                        Some(vec![PublicIdentifier {
+                            name: item.ident.to_string(),
+                            r#type: "enum".into(),
+                        }])
+                    } else {
+                        None
+                    }
+                }
+                syn::Item::ExternCrate(item) => {
+                    if let syn::Visibility::Public(_) = item.vis {
+                        Some(vec![PublicIdentifier {
+                            name: item.ident.to_string(),
+                            r#type: "extern crate".into(),
+                        }])
+                    } else {
+                        None
+                    }
+                }
+                syn::Item::Fn(item) => {
+                    if let syn::Visibility::Public(_) = item.vis {
+                        Some(vec![PublicIdentifier {
+                            name: item.sig.ident.to_string(),
+                            r#type: "fn".into(),
+                        }])
+                    } else {
+                        None
+                    }
+                }
+                syn::Item::ForeignMod(_) => None,
+                syn::Item::Impl(_) => None,
+                syn::Item::Macro(_) => None,
+                syn::Item::Mod(item) => {
+                    if let syn::Visibility::Public(_) = item.vis {
+                        Some(vec![PublicIdentifier {
+                            name: item.ident.to_string(),
+                            r#type: "mod".into(),
+                        }])
+                    } else {
+                        None
+                    }
+                }
+                syn::Item::Static(item) => {
+                    if let syn::Visibility::Public(_) = item.vis {
+                        Some(vec![PublicIdentifier {
+                            name: item.ident.to_string(),
+                            r#type: "static".into(),
+                        }])
+                    } else {
+                        None
+                    }
+                }
+                syn::Item::Struct(item) => {
+                    if let syn::Visibility::Public(_) = item.vis {
+                        Some(vec![PublicIdentifier {
+                            name: item.ident.to_string(),
+                            r#type: "struct".into(),
+                        }])
+                    } else {
+                        None
+                    }
+                }
+                syn::Item::Trait(item) => {
+                    if let syn::Visibility::Public(_) = item.vis {
+                        Some(vec![PublicIdentifier {
+                            name: item.ident.to_string(),
+                            r#type: "trait".into(),
+                        }])
+                    } else {
+                        None
+                    }
+                }
+                syn::Item::TraitAlias(item) => {
+                    if let syn::Visibility::Public(_) = item.vis {
+                        Some(vec![PublicIdentifier {
+                            name: item.ident.to_string(),
+                            r#type: "trait alias".into(),
+                        }])
+                    } else {
+                        None
+                    }
+                }
+                syn::Item::Type(item) => {
+                    if let syn::Visibility::Public(_) = item.vis {
+                        Some(vec![PublicIdentifier {
+                            name: item.ident.to_string(),
+                            r#type: "type".into(),
+                        }])
+                    } else {
+                        None
+                    }
+                }
+                syn::Item::Union(item) => {
+                    if let syn::Visibility::Public(_) = item.vis {
+                        Some(vec![PublicIdentifier {
+                            name: item.ident.to_string(),
+                            r#type: "union".into(),
+                        }])
+                    } else {
+                        None
+                    }
+                }
+                syn::Item::Use(item) => {
+                    if let syn::Visibility::Public(_) = item.vis {
+                        Some(PublicIdentifier::from_use(&item.tree))
+                    } else {
+                        None
+                    }
+                }
+                syn::Item::Verbatim(_) => None,
+                _ => None,
+            })
+            .flatten()
+            .collect()
     }
 }
 
@@ -64,134 +192,7 @@ impl Lib {
             })
             .collect();
 
-        let interface: Vec<PublicIdentifier> = parsed_file
-            .items
-            .iter()
-            .filter_map(|item| match item {
-                syn::Item::Const(item) => {
-                    if let syn::Visibility::Public(_) = item.vis {
-                        Some(PublicIdentifier {
-                            name: item.ident.to_string(),
-                            r#type: "const".into(),
-                        })
-                    } else {
-                        None
-                    }
-                }
-                syn::Item::Enum(item) => {
-                    if let syn::Visibility::Public(_) = item.vis {
-                        Some(PublicIdentifier {
-                            name: item.ident.to_string(),
-                            r#type: "enum".into(),
-                        })
-                    } else {
-                        None
-                    }
-                }
-                syn::Item::ExternCrate(item) => {
-                    if let syn::Visibility::Public(_) = item.vis {
-                        Some(PublicIdentifier {
-                            name: item.ident.to_string(),
-                            r#type: "extern crate".into(),
-                        })
-                    } else {
-                        None
-                    }
-                }
-                syn::Item::Fn(item) => {
-                    if let syn::Visibility::Public(_) = item.vis {
-                        Some(PublicIdentifier {
-                            name: item.sig.ident.to_string(),
-                            r#type: "fn".into(),
-                        })
-                    } else {
-                        None
-                    }
-                }
-                syn::Item::ForeignMod(_) => None,
-                syn::Item::Impl(_) => None,
-                syn::Item::Macro(_) => None,
-                syn::Item::Mod(item) => {
-                    if let syn::Visibility::Public(_) = item.vis {
-                        Some(PublicIdentifier {
-                            name: item.ident.to_string(),
-                            r#type: "mod".into(),
-                        })
-                    } else {
-                        None
-                    }
-                }
-                syn::Item::Static(item) => {
-                    if let syn::Visibility::Public(_) = item.vis {
-                        Some(PublicIdentifier {
-                            name: item.ident.to_string(),
-                            r#type: "static".into(),
-                        })
-                    } else {
-                        None
-                    }
-                }
-                syn::Item::Struct(item) => {
-                    if let syn::Visibility::Public(_) = item.vis {
-                        Some(PublicIdentifier {
-                            name: item.ident.to_string(),
-                            r#type: "struct".into(),
-                        })
-                    } else {
-                        None
-                    }
-                }
-                syn::Item::Trait(item) => {
-                    if let syn::Visibility::Public(_) = item.vis {
-                        Some(PublicIdentifier {
-                            name: item.ident.to_string(),
-                            r#type: "trait".into(),
-                        })
-                    } else {
-                        None
-                    }
-                }
-                syn::Item::TraitAlias(item) => {
-                    if let syn::Visibility::Public(_) = item.vis {
-                        Some(PublicIdentifier {
-                            name: item.ident.to_string(),
-                            r#type: "trait alias".into(),
-                        })
-                    } else {
-                        None
-                    }
-                }
-                syn::Item::Type(item) => {
-                    if let syn::Visibility::Public(_) = item.vis {
-                        Some(PublicIdentifier {
-                            name: item.ident.to_string(),
-                            r#type: "type".into(),
-                        })
-                    } else {
-                        None
-                    }
-                }
-                syn::Item::Union(item) => {
-                    if let syn::Visibility::Public(_) = item.vis {
-                        Some(PublicIdentifier {
-                            name: item.ident.to_string(),
-                            r#type: "union".into(),
-                        })
-                    } else {
-                        None
-                    }
-                }
-                syn::Item::Use(item) => {
-                    if let syn::Visibility::Public(_) = item.vis {
-                        Some(item.tree.clone().into())
-                    } else {
-                        None
-                    }
-                }
-                syn::Item::Verbatim(_) => None,
-                _ => None,
-            })
-            .collect();
+        let interface: Vec<PublicIdentifier> = PublicIdentifier::find_in_items(&parsed_file.items);
 
         Self {
             name: name.into(),
@@ -326,134 +327,7 @@ impl Module {
                     })
                     .collect();
 
-                let interface: Vec<PublicIdentifier> = parsed_file
-                    .items
-                    .iter()
-                    .filter_map(|item| match item {
-                        syn::Item::Const(item) => {
-                            if let syn::Visibility::Public(_) = item.vis {
-                                Some(PublicIdentifier {
-                                    name: item.ident.to_string(),
-                                    r#type: "const".into(),
-                                })
-                            } else {
-                                None
-                            }
-                        }
-                        syn::Item::Enum(item) => {
-                            if let syn::Visibility::Public(_) = item.vis {
-                                Some(PublicIdentifier {
-                                    name: item.ident.to_string(),
-                                    r#type: "enum".into(),
-                                })
-                            } else {
-                                None
-                            }
-                        }
-                        syn::Item::ExternCrate(item) => {
-                            if let syn::Visibility::Public(_) = item.vis {
-                                Some(PublicIdentifier {
-                                    name: item.ident.to_string(),
-                                    r#type: "extern crate".into(),
-                                })
-                            } else {
-                                None
-                            }
-                        }
-                        syn::Item::Fn(item) => {
-                            if let syn::Visibility::Public(_) = item.vis {
-                                Some(PublicIdentifier {
-                                    name: item.sig.ident.to_string(),
-                                    r#type: "fn".into(),
-                                })
-                            } else {
-                                None
-                            }
-                        }
-                        syn::Item::ForeignMod(_) => None,
-                        syn::Item::Impl(_) => None,
-                        syn::Item::Macro(_) => None,
-                        syn::Item::Mod(item) => {
-                            if let syn::Visibility::Public(_) = item.vis {
-                                Some(PublicIdentifier {
-                                    name: item.ident.to_string(),
-                                    r#type: "mod".into(),
-                                })
-                            } else {
-                                None
-                            }
-                        }
-                        syn::Item::Static(item) => {
-                            if let syn::Visibility::Public(_) = item.vis {
-                                Some(PublicIdentifier {
-                                    name: item.ident.to_string(),
-                                    r#type: "static".into(),
-                                })
-                            } else {
-                                None
-                            }
-                        }
-                        syn::Item::Struct(item) => {
-                            if let syn::Visibility::Public(_) = item.vis {
-                                Some(PublicIdentifier {
-                                    name: item.ident.to_string(),
-                                    r#type: "struct".into(),
-                                })
-                            } else {
-                                None
-                            }
-                        }
-                        syn::Item::Trait(item) => {
-                            if let syn::Visibility::Public(_) = item.vis {
-                                Some(PublicIdentifier {
-                                    name: item.ident.to_string(),
-                                    r#type: "trait".into(),
-                                })
-                            } else {
-                                None
-                            }
-                        }
-                        syn::Item::TraitAlias(item) => {
-                            if let syn::Visibility::Public(_) = item.vis {
-                                Some(PublicIdentifier {
-                                    name: item.ident.to_string(),
-                                    r#type: "trait alias".into(),
-                                })
-                            } else {
-                                None
-                            }
-                        }
-                        syn::Item::Type(item) => {
-                            if let syn::Visibility::Public(_) = item.vis {
-                                Some(PublicIdentifier {
-                                    name: item.ident.to_string(),
-                                    r#type: "type".into(),
-                                })
-                            } else {
-                                None
-                            }
-                        }
-                        syn::Item::Union(item) => {
-                            if let syn::Visibility::Public(_) = item.vis {
-                                Some(PublicIdentifier {
-                                    name: item.ident.to_string(),
-                                    r#type: "union".into(),
-                                })
-                            } else {
-                                None
-                            }
-                        }
-                        syn::Item::Use(item) => {
-                            if let syn::Visibility::Public(_) = item.vis {
-                                Some(item.tree.clone().into())
-                            } else {
-                                None
-                            }
-                        }
-                        syn::Item::Verbatim(_) => None,
-                        _ => None,
-                    })
-                    .collect();
+                let interface: Vec<PublicIdentifier> = PublicIdentifier::find_in_items(&parsed_file.items);
 
                 (modules, interface)
             })
