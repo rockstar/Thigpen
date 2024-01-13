@@ -1,7 +1,7 @@
 [package]
 name = "thigpen"
 description = "thigpen is a tool for analyzing module layout of a rust crate"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 license-file = "LICENSE"
 homepage = "https://github.com/rockstar/thigpen"
