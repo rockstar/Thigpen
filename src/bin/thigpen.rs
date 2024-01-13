@@ -38,7 +38,7 @@ struct Args {
 }
 
 fn find_cargo_toml(path: &Path) -> Option<PathBuf> {
-    assert!(path.is_dir());
+    assert!(path.is_dir(), "Path is {}", path.to_str().unwrap());
 
     let mut path = path.to_path_buf();
     loop {
